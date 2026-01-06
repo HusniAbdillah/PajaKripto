@@ -1,0 +1,162 @@
+[
+  {
+    "id": "tx_001",
+    "timestamp": "2024-03-15T10:00:00Z",
+    "type": "RECEIVE",
+    "asset": "ETH",
+    "amount": 1.5,
+    "price_at_date": 3500,
+    "from": "0xExchange_HotWallet",
+    "fee_eth": 0.0001
+  },
+  {
+    "id": "tx_002",
+    "timestamp": "2024-05-20T14:30:00Z",
+    "type": "SWAP",
+    "asset_sent": "ETH",
+    "amount_sent": 0.5,
+    "asset_received": "USDC",
+    "amount_received": 1900,
+    "price_sent_at_date": 3800,
+    "fee_eth": 0.0005,
+    "note": "Profit taking 1"
+  },
+  {
+    "id": "tx_003",
+    "timestamp": "2024-08-10T09:15:00Z",
+    "type": "MINT",
+    "asset": "BasePass NFT",
+    "amount": 1,
+    "cost_eth": 0.01,
+    "price_eth_at_date": 2500,
+    "fee_eth": 0.0008
+  },
+  {
+    "id": "tx_004",
+    "timestamp": "2024-11-05T16:45:00Z",
+    "type": "SWAP",
+    "asset_sent": "USDC",
+    "amount_sent": 1000,
+    "asset_received": "DEGEN",
+    "amount_received": 50000,
+    "price_sent_at_date": 1,
+    "fee_eth": 0.0002
+  },
+  {
+    "id": "tx_005",
+    "timestamp": "2024-12-28T23:00:00Z",
+    "type": "TRANSFER",
+    "asset": "ETH",
+    "amount": 0.1,
+    "to": "0xFriend_Wallet",
+    "fee_eth": 0.0001
+  },
+  {
+    "id": "tx_006",
+    "timestamp": "2025-01-10T08:00:00Z",
+    "type": "SWAP",
+    "asset_sent": "ETH",
+    "amount_sent": 0.2,
+    "asset_received": "USDC",
+    "amount_received": 500,
+    "price_sent_at_date": 2500,
+    "fee_eth": 0.0003,
+    "note": "Re-balancing early 2025"
+  },
+  {
+    "id": "tx_007",
+    "timestamp": "2025-01-15T12:00:00Z",
+    "type": "RECEIVE",
+    "asset": "AERO",
+    "amount": 1000,
+    "price_at_date": 0.8,
+    "from": "0xLiquidity_Pool_Rewards",
+    "fee_eth": 0.0
+  },
+  {
+    "id": "tx_008",
+    "timestamp": "2025-02-02T15:20:00Z",
+    "type": "SWAP",
+    "asset_sent": "DEGEN",
+    "amount_sent": 20000,
+    "asset_received": "ETH",
+    "amount_received": 0.05,
+    "price_sent_at_date": 0.008,
+    "fee_eth": 0.0004,
+    "note": "Stop loss"
+  },
+  {
+    "id": "tx_009",
+    "timestamp": "2025-02-20T10:10:00Z",
+    "type": "MINT",
+    "asset": "TaxBase Early User NFT",
+    "amount": 1,
+    "cost_eth": 0.0,
+    "price_eth_at_date": 2800,
+    "fee_eth": 0.0002
+  },
+  {
+    "id": "tx_010",
+    "timestamp": "2025-03-05T11:00:00Z",
+    "type": "TRANSFER",
+    "asset": "USDC",
+    "amount": 500,
+    "to": "0xMerchant_Payment",
+    "fee_eth": 0.0001
+  },
+  {
+    "id": "tx_011",
+    "timestamp": "2025-03-12T14:00:00Z",
+    "type": "SWAP",
+    "asset_sent": "AERO",
+    "amount_sent": 500,
+    "asset_received": "USDC",
+    "amount_received": 450,
+    "price_sent_at_date": 0.9,
+    "fee_eth": 0.0003
+  },
+  {
+    "id": "tx_012",
+    "timestamp": "2025-04-01T09:30:00Z",
+    "type": "RECEIVE",
+    "asset": "ETH",
+    "amount": 0.5,
+    "price_at_date": 3200,
+    "from": "0xStaking_Rewards",
+    "fee_eth": 0.0
+  },
+  {
+    "id": "tx_013",
+    "timestamp": "2025-04-18T17:45:00Z",
+    "type": "SWAP",
+    "asset_sent": "ETH",
+    "amount_sent": 0.3,
+    "asset_received": "IDRX",
+    "amount_received": 15000000,
+    "price_sent_at_date": 3300,
+    "fee_eth": 0.0005,
+    "note": "Cashing out to IDRX"
+  },
+  {
+    "id": "tx_014",
+    "timestamp": "2025-05-10T20:00:00Z",
+    "type": "TRANSFER",
+    "asset": "IDRX",
+    "amount": 2000000,
+    "to": "0xTax_Safe_Vault",
+    "fee_eth": 0.0002,
+    "note": "Auto-tax allocation"
+  },
+  {
+    "id": "tx_015",
+    "timestamp": "2025-06-01T13:00:00Z",
+    "type": "SWAP",
+    "asset_sent": "DEGEN",
+    "amount_sent": 30000,
+    "asset_received": "USDC",
+    "amount_received": 150,
+    "price_sent_at_date": 0.005,
+    "fee_eth": 0.0004,
+    "note": "Tax loss harvesting potential"
+  }
+]
