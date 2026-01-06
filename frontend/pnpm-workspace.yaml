@@ -1,5 +1,9 @@
 packages:
   - .
+
 ignoredBuiltDependencies:
+  - bufferutil
+  - core-js
   - sharp
   - unrs-resolver
+  - utf-8-validate
