@@ -5,8 +5,7 @@ import { CryptoTransaction } from "./typesTransaction";
 export const loadMockTransactions = (): CryptoTransaction[] => {
   try {
     const filePath = path.join(
-      __dirname,
-      "..",
+      process.cwd(),
       "data",
       "mock",
       "transactions.json",
