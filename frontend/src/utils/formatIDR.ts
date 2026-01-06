@@ -8,9 +8,9 @@ export const formatIDR = (amount: number): string => {
 };
 
 // Test
-import { loadMockTransactions } from "./readMockupDataTransaction";
+import { loadTransactions } from "../lib/readData";
 
-const txs = loadMockTransactions();
+const txs = loadTransactions();
 txs.forEach((tx) => {
   if (tx.amount_received && tx.asset_received === "IDRX") {
     console.log(`Penerimaan: ${formatIDR(tx.amount_received)}`);

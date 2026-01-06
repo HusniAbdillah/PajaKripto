@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import { CryptoTransaction } from "./typesTransaction";
+import { CryptoTransaction } from "../types/transaction";
 
-export const loadMockTransactions = (): CryptoTransaction[] => {
+export const loadTransactions = (): CryptoTransaction[] => {
   try {
     const filePath = path.join(
       process.cwd(),
@@ -21,5 +21,5 @@ export const loadMockTransactions = (): CryptoTransaction[] => {
 };
 
 // Test
-const data = loadMockTransactions();
+const data = loadTransactions();
 console.log(`Banyak Data: ${data.length}`);
