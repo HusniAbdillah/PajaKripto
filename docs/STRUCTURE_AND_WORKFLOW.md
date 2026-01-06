@@ -1,7 +1,7 @@
 # Struktur Proyek & Alur Kerja PajaKripto
 
 **Dokumen Wajib Baca untuk Tim:**
-* **Fauzan** (FE Lead & Integration)
+* **Fauzan** (FE Dev & Integration)
 * **Wandy** (UI/UX & Components)
 * **Gilang** (Logic & Backend Types)
 * **Qois** (Data & Mocking)
@@ -91,7 +91,7 @@ Hormati wilayah teman. Kalau mau edit file di wilayah orang lain, izin dulu di g
 
 | Role | Nama | Folder Utama | Tugas & Tanggung Jawab |
 | --- | --- | --- | --- |
-| **FE Lead** | **Fauzan** | `src/app`, `src/hooks`, `src/constants` | Menggabungkan semua komponen, Integrasi Wallet (OnchainKit), Deploy Vercel. |
+| **FE Dev** | **Fauzan** | `src/app`, `src/hooks`, `src/constants` | Menggabungkan semua komponen, Integrasi Wallet (OnchainKit), Deploy Vercel. |
 | **UI Designer** | **Wandy** | `src/components` | Membuat tampilan cantik & responsif. Jangan pusingin logic berat, fokus visual. |
 | **Logic** | **Gilang** | `src/lib`, `src/types` | Penjaga `types/index.ts`. Menulis rumus pajak (`taxEngine`). |
 | **Data** | **Qois** | `src/data` | Menyediakan data JSON dummy. Format data HARUS sesuai dengan `types` dari Gilang. |
@@ -158,8 +158,8 @@ git push -u origin ui/dashboard-card
 2. Klik tombol **"Compare & pull request"**.
 3. Pastikan arah panahnya: `base: main` <--- `compare: ui/dashboard-card`.
 4. Klik **Create Pull Request**.
-5. Bilang di grup: *"Zan, tolong review PR gue dong."*
-6. **Fauzan (Lead)** melakukan Merge.
+5. Bilang di grup: *"Ges, tolong review PR gue dong."*
+6. Yang lain melakukan Merge.
 
 ---
 
@@ -206,7 +206,7 @@ npx hardhat run scripts/deploy.ts --network baseSepolia
 1. **JANGAN PERNAH COMMIT FILE `.env`!**
 Kalau sampai private key Husni bocor, project kita bisa di-hack bot. Pastikan file `.env` warnanya abu-abu di VS Code (artinya di-ignore).
 2. **JANGAN UBAH STRUKTUR FOLDER.**
-Kalau mau nambah folder baru, diskusi dulu sama Fauzan.
+Kalau mau nambah folder baru, diskusi dulu sama teman lain.
 3. **PAKAI `pnpm`, JANGAN `npm`.**
 Kalau kalian pakai `npm install`, akan muncul `package-lock.json` yang bikin konflik sama `pnpm-lock.yaml`.
 
@@ -215,10 +215,10 @@ Kalau kalian pakai `npm install`, akan muncul `package-lock.json` yang bikin kon
 ## Troubleshooting
 
 * **Conflict saat git pull?**
-Jangan panik. Hubungi Fauzan. Jangan asal pencet "Accept Incoming" kalau bingung.
+Jangan panik. Hubungi teman lain. Jangan asal pencet "Accept Incoming" kalau bingung.
 * **Error `node_modules`?**
 Hapus folder `node_modules`, lalu jalankan `pnpm install` lagi.
 * **Wagmi/Viem Error?**
-Pastikan versi di `package.json` kalian sama dengan punya teman.
+Pastikan versi di `package.json` kalian sama dengan punya teman lain.
 
 **Yang semangat yah tim! Kita gaspol 6 hari ini!**
