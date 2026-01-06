@@ -63,7 +63,7 @@ Follow these steps to run PajaKripto locally.
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/HusniAbdillah/PajaKripto.git](https://github.com/HusniAbdillah/PajaKripto.git)
+git clone https://github.com/HusniAbdillah/PajaKripto.git
 cd PajaKripto
 ```
 
