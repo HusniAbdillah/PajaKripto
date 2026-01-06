@@ -76,8 +76,10 @@ pajakripto/                            <-- ROOT (JANGAN NARUH KODE DISINI)
         ├── lib/                       <-- ZONA GILANG (Logic)
         │   ├── utils.ts               <-- Bawaan Shadcn
         │   ├── taxEngine.ts           <-- RUMUS PAJAK PMK 68
-        │   ├── formatter.ts           <-- Format Rupiah
         │   └── pdfGenerator.ts        <-- Logic bikin PDF
+        │
+        ├── utils/                       <-- Function Helper sederhana
+        │   └── formatIDR.ts             <-- Format Rupiah
         │
         └── types/                     <-- ZONA GILANG (Definisi Tipe)
             └── index.ts               <-- Interface TypeScript (Transaction, Token)
