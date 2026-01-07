@@ -1,7 +1,6 @@
 'use client';
 
 import { WalletComponents } from "@/components/wallet/WalletComponents";
-import { FarcasterInfo } from "@/components/farcaster/FarcasterInfo";
 import { FarcasterTester } from "@/components/farcaster/FarcasterTester";
 import { LanguageSwitch } from "@/components/layout/LanguageSwitch";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -83,33 +82,13 @@ export default function Home() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-6 py-16">
-        <div className="max-w-3xl">
-          {/* Farcaster Info */}
-          <div className="mb-8">
-            <FarcasterInfo />
-          </div>
-          
-          <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-            {t.hero_title}
-          </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8">
-            {t.hero_desc}
-          </p>
-
-          {/* Connect Prompt */}
-          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-8 mb-12 border border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3">
-              {t.cta_title}
-            </h2>
-            <p className="text-zinc-600 dark:text-zinc-400 mb-6">
-              {t.cta_desc}
-            </p>
-            <WalletComponents />
+      <main className="max-w-6xl mx-auto px-6 py-0">
+        <div className="max-w-3xl space-y-8">
+          <div className="pt-0">
           </div>
 
           {/* Features */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
               {t.features_title}
             </h3>
@@ -130,14 +109,14 @@ export default function Home() {
                   return (
                     <CarouselItem key={index}>
                       <Card className="border-zinc-200 dark:border-zinc-800">
-                        <CardContent className="flex flex-col items-center justify-center px-8 space-y-4">
+                        <CardContent className="flex flex-col items-center justify-center px-6 space-y-3">
                           {/* Icon Section */}
                           <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg">
                             <Icon className="w-24 h-24 text-primary" />
                           </div>
                           
                           {/* Text Section */}
-                          <div className="text-center space-y-2">
+                          <div className="text-center space-y-1.5">
                             <h4 className="text-xl font-semibold text-zinc-900 dark:text-white">
                               {feature.title}
                             </h4>
@@ -153,7 +132,7 @@ export default function Home() {
               </CarouselContent>
               
               {/* Dots Indicator */}
-              <div className="flex justify-center gap-2 mt-4">
+              <div className="flex justify-center gap-2 mt-4 pb-2">
                 {Array.from({ length: count }).map((_, index) => (
                   <button
                     key={index}
@@ -168,6 +147,17 @@ export default function Home() {
                 ))}
               </div>
             </Carousel>
+          </div>
+
+          {/* Connect Prompt */}
+          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-6 mb-8 border border-zinc-200 dark:border-zinc-800">
+            <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
+              {t.cta_title}
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 mb-5">
+              {t.cta_desc}
+            </p>
+            <WalletComponents />
           </div>
         </div>
 

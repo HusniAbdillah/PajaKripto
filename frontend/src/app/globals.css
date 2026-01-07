@@ -184,3 +184,105 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Heading */
+  .heading-xl {
+    font-size: 32px;
+    line-height: 40px;
+  }
+  
+  .heading-lg {
+    font-size: 28px;
+    line-height: 32px;
+  }
+  
+  .heading-md {
+    font-size: 24px;
+    line-height: 28px;
+  }
+  
+  .heading-sm {
+    font-size: 20px;
+    line-height: 24px;
+  }
+  
+  /* Body */
+  .body-lg-medium {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 500;
+  }
+  
+  .body-lg {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  
+  .body-md-medium {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+  }
+  
+  .body-md {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  
+  .body-sm-medium {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+  }
+  
+  .body-sm {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  
+  .body-xs-medium {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+  }
+  
+  .body-xs {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  
+  /* Label */
+  .label-sm {
+    font-size: 14px;
+    line-height: 16px;
+  }
+  
+  .label-sm-uppercase {
+    font-size: 14px;
+    line-height: 16px;
+    text-transform: uppercase;
+  }
+  
+  .label-xs {
+    font-size: 12px;
+    line-height: 14px;
+  }
+  
+  .label-xs-uppercase {
+    font-size: 12px;
+    line-height: 14px;
+    text-transform: uppercase;
+  }
+  
+  .label-2xs {
+    font-size: 10px;
+    line-height: 12px;
+  }
+  
+  .label-2xs-uppercase {
+    font-size: 10px;
+    line-height: 12px;
+    text-transform: uppercase;
+  }
+}
