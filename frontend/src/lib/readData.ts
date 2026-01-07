@@ -6,6 +6,7 @@ export const loadTransactions = (): CryptoTransaction[] => {
   try {
     const filePath = path.join(
       process.cwd(),
+      "src",
       "data",
       "mock",
       "transactions.json",
