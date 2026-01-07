@@ -53,23 +53,10 @@ export type TransactionSource =
   | "MANUAL_ENTRY"
   | "MOCK";
 
-export type TransactionType =
-  | "BUY"
-  | "SELL"
-  | "SWAP"
-  | "TRANSFER_IN"
-  | "TRANSFER_OUT"
-  | "MINT"
-  | "BURN"
-  | "STAKE"
-  | "UNSTAKE"
-  | "REWARD"
-  | "AIRDROP"
-  | "INCOME"
-  | "EXPENSE"
-  | "DONATION"
-  | "SELF"
-  | "UNKNOWN";
+export type TransactionType = 
+  | "SWAP" | "RECEIVE" | "TRANSFER" | "MINT" 
+  | "TRANSFER_IN" | "TRANSFER_OUT" | "SELF" 
+  | "UNKNOWN" | "BUY" | "SELL" | "INCOME";
 
 export type TokenStandard =
   | "ERC20"
@@ -133,18 +120,16 @@ export interface WalletSession {
 }
 
 export interface Token {
-  id: UUID;
+  id: string;
   symbol: string;
   name: string;
   decimals: number;
-  chain: Chain;
-  address: Address | "NATIVE";
+  chain: string;
+  address: string | "NATIVE";
   standard: TokenStandard;
   is_stablecoin: boolean;
-  coingecko_id?: string;
-  logo_url?: string;
-  color?: string;
 }
+
 
 export interface AssetBalance {
   token: Token;
@@ -181,15 +166,14 @@ export interface HistoricalPriceRequest {
   timestamp: UnixTimestamp;
   required_confidence?: number;
 }
-
 export interface RawTransaction {
-  id: UUID;
-  chain: Chain;
-  hash: TransactionHash;
+  id: string;
+  chain: string;  
+  hash: string;
   block_number: number;
-  timestamp: UnixTimestamp;
-  from: Address;
-  to: Address;
+  timestamp: number;
+  from: string;
+  to: string;
   value: string;
   gas_used: string;
   gas_price: string;
@@ -197,11 +181,10 @@ export interface RawTransaction {
   input_data?: string;
   logs: any[];
   status: "SUCCESS" | "FAILED" | "PENDING";
-  source: TransactionSource;
+  source: string;
   explorer_url: string;
-  internal_transactions?: RawTransaction[];
+  internal_transactions: RawTransaction[];
 }
-
 export interface TransactionAssetLeg {
   id: UUID;
   token: Token;
@@ -212,28 +195,27 @@ export interface TransactionAssetLeg {
   wallet_effect: "IN" | "OUT" | "NEUTRAL";
   is_fee: boolean;
 }
-
 export interface ProcessedTransaction {
-  id: UUID;
-  chain: Chain;
-  wallet_address: Address;
-  raw_transaction: RawTransaction;
-  type: TransactionType;
-  legs: TransactionAssetLeg[];
-  timestamp: ISODateString;
-  exchange?: ExchangeType;
-  dex_name?: string;
-  cex_name?: string;
-  fee_idr: number;
-  fee_token: Token;
+  id: string;
+  chain: string;
+  wallet_address: string;
+  raw_transaction: RawTransaction;  
+  type: string;
+  legs: any[];
+  timestamp: string;
+  transaction_value_idr?: number;
   fee_amount: number;
-  note?: string;
-  tags: string[];
+  fee_idr: number;
+  
   is_taxable: boolean;
   is_verified: boolean;
-  source: "onchain" | "cex" | "manual" | "mock";
-  imported_at: ISODateString;
-  last_updated: ISODateString;
+  source: string;
+  tags: string[];
+  imported_at: string;
+  last_updated: string;
+  
+  fee_token: Token;
+  main_token?: Token;
 }
 
 export interface CostBasis {
@@ -474,13 +456,7 @@ export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
-  meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    chain?: Chain;
-    timestamp: ISODateString;
-  };
+  meta?: any;
 }
 
 export interface AppConfig {

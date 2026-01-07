@@ -85,6 +85,8 @@ export const syncWalletTransactions = async (
   limit: number = 20,
 ): Promise<ApiResponse<RawTransaction[]>> => {
   try {
+    if (limit < 1) limit = 1;
+    if (limit > 1000) limit = 1000;
     if (!walletAddress.startsWith("0x")) {
       throw new Error("Invalid wallet address format.");
     }
