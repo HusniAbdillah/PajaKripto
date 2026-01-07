@@ -3,6 +3,7 @@ import {
   Network,
   AssetTransfersCategory,
   AssetTransfersResult,
+  SortingOrder,
 } from "alchemy-sdk";
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
@@ -26,6 +27,13 @@ const config = {
 };
 const alchemy = new Alchemy(config);
 
+// Tambahkan interface lokal untuk membantu TypeScript memahami metadata
+interface AssetTransfersResultWithMetadata extends AssetTransfersResult {
+  metadata: {
+    blockTimestamp: string;
+  };
+}
+
 /**
  * Mengubah format data mentah Alchemy menjadi interface RawTransaction.
  */
@@ -33,8 +41,9 @@ const mapToRawTransaction = (
   alchemyTx: AssetTransfersResult,
   receipt: any,
 ): RawTransaction => {
+  const txWithMeta = alchemyTx as AssetTransfersResultWithMetadata;
   const unixTime: UnixTimestamp = Math.floor(
-    new Date(alchemyTx.metadata.blockTimestamp).getTime() / 1000,
+    new Date(txWithMeta.metadata.blockTimestamp).getTime() / 1000,
   );
 
   return {
@@ -86,7 +95,7 @@ export const syncWalletTransactions = async (
       category: [AssetTransfersCategory.EXTERNAL, AssetTransfersCategory.ERC20],
       withMetadata: true,
       maxCount: limit,
-      order: "desc",
+      order: SortingOrder.DESCENDING,
     });
 
     const formattedTransactions: RawTransaction[] = await Promise.all(
