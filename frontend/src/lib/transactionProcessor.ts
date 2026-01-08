@@ -93,7 +93,7 @@ const calculateTransactionValueIDR = async (
     console.log(`Token: ${tokenSymbol}, Decimals: ${decimals}`);
     console.log(`Raw: ${tx.value} wei -> ${tokenAmount} ${tokenSymbol}`);
     
-    const priceIDR = await priceOracle.getHistoricalPriceIDR(tokenSymbol, tx.timestamp);
+    const priceIDR = await priceOracle.getPrice(tokenSymbol, tx.timestamp);
     const valueIDR = tokenAmount * priceIDR;
     
     console.log(`Price: Rp ${priceIDR.toLocaleString('id-ID')}`);
@@ -125,10 +125,10 @@ export const processRawTransactions = async (
       const gasPriceETH = parseFloat(raw.gas_price) / 1e18;
       const gasFeeETH = gasUsedETH * gasPriceETH;
       
-      const ethPriceIDR = await priceOracle.getHistoricalPriceIDR(
-        "ETH",
-        raw.timestamp
-      );
+      const ethPriceIDR = await priceOracle.getPrice(
+      "ETH",
+      raw.timestamp
+    );
       const gasFeeIDR = gasFeeETH * ethPriceIDR;
 
       const isTaxable = ["SWAP", "TRANSFER_OUT", "MINT"].includes(type);
