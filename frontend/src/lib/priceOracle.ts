@@ -1,127 +1,206 @@
-export interface HistoricalPrice {
-  timestamp: number;
-  priceUSD: number;
-  priceIDR: number;
-  source: 'COINGECKO' | 'CACHE' | 'FALLBACK';
+type CacheKey = string;
+type PriceSource = "cryptocompare" | "coingecko" | "fallback";
+
+enum PriceErrorType {
+  API_DOWN = "API_DOWN",
+  NOT_FOUND = "NOT_FOUND",
 }
 
-export interface TokenPriceCache {
-  [tokenSymbol: string]: {
-    [timestamp: string]: HistoricalPrice;
-  };
-}
+class PriceOracle {
+  private priceCache = new Map<CacheKey, { value: number; ts: number }>();
+  private fxCache = new Map<string, { value: number; ts: number }>();
+  private inflight = new Map<CacheKey, Promise<number>>();
+  private lastSource: PriceSource | null = null;
 
-export class PriceOracle {
-  private cache: TokenPriceCache = {};
-  private USD_TO_IDR = 15000;
+  private static PRICE_TTL = 24 * 60 * 60 * 1000;
+  private static FX_TTL = 7 * 24 * 60 * 60 * 1000;
 
-  async getHistoricalPriceIDR(
-    tokenSymbol: string,
-    timestamp: number
-  ): Promise<number> {
-    try {
-      const priceData = await this.fetchHistoricalPrice(tokenSymbol, timestamp);
-      return priceData.priceIDR;
-    } catch (error) {
-      console.warn(`[PriceOracle] Fallback untuk ${tokenSymbol} at ${timestamp}`);
-      return this.getFallbackPrice(tokenSymbol);
-    }
-  }
+  async getPrice(symbol: string, timestamp: number): Promise<number> {
+    const { normalizedSymbol } = this.parseSymbol(symbol);
+    const dateKey = this.normalizeDate(timestamp);
+    const cacheKey = `${normalizedSymbol}-${dateKey}`;
 
-  async getHistoricalPrice(
-    tokenSymbol: string,
-    timestamp: number
-  ): Promise<HistoricalPrice> {
-    return await this.fetchHistoricalPrice(tokenSymbol, timestamp);
-  }
-
-  private async fetchHistoricalPrice(
-    tokenSymbol: string,
-    timestamp: number
-  ): Promise<HistoricalPrice> {
-    const cacheKey = `${tokenSymbol}_${timestamp}`;
-    if (this.cache[tokenSymbol]?.[cacheKey]) {
-      return {
-        ...this.cache[tokenSymbol][cacheKey],
-        source: 'CACHE'
-      };
+    const cached = this.priceCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < PriceOracle.PRICE_TTL) {
+      return cached.value;
     }
 
-    const date = new Date(timestamp * 1000);
-    const dateStr = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-    
-    const coinId = this.mapTokenToCoinId(tokenSymbol);
-    
-    const url = `https://api.coingecko.com/api/v3/coins/${coinId}/history`;
-    
-    const response = await fetch(`${url}?date=${dateStr}&localization=false`);
-    
-    if (!response.ok) {
-      throw new Error(`CoinGecko API error: ${response.status}`);
+    if (this.inflight.has(cacheKey)) {
+      return this.inflight.get(cacheKey)!;
     }
 
-    const data = await response.json();
-    
-    if (!data.market_data?.current_price?.usd) {
-      throw new Error('Harga tidak ditemukan untuk tanggal tersebut');
-    }
-
-    const priceUSD = data.market_data.current_price.usd;
-    const priceIDR = priceUSD * this.USD_TO_IDR;
-
-    const priceData: HistoricalPrice = {
+    const promise = this.resolvePrice(
+      normalizedSymbol,
       timestamp,
-      priceUSD,
-      priceIDR,
-      source: 'COINGECKO'
-    };
+      dateKey,
+      symbol
+    );
 
-    if (!this.cache[tokenSymbol]) {
-      this.cache[tokenSymbol] = {};
+    this.inflight.set(cacheKey, promise);
+    const value = await promise;
+    this.inflight.delete(cacheKey);
+
+    this.priceCache.set(cacheKey, {
+      value,
+      ts: Date.now(),
+    });
+
+    return value;
+  }
+
+  private async resolvePrice(
+    symbol: string,
+    timestamp: number,
+    dateKey: string,
+    rawSymbol: string
+  ): Promise<number> {
+    let usdPrice =
+      (await this.fetchFromCryptoCompare(symbol, timestamp)) ??
+      (await this.fetchFromCoinGecko(symbol, dateKey));
+
+    if (usdPrice == null) {
+      this.lastSource = "fallback";
+      console.warn("[PriceOracle] Fallback price used for", rawSymbol);
+      usdPrice = this.getLegacyFallbackUsdPrice(symbol);
     }
-    this.cache[tokenSymbol][cacheKey] = priceData;
 
-    return priceData;
+    const fx = await this.getUsdToIdrRate(dateKey);
+    return usdPrice * fx;
   }
 
-  private mapTokenToCoinId(tokenSymbol: string): string {
-    const mapping: { [key: string]: string } = {
-      'ETH': 'ethereum',
-      'USDC': 'usd-coin',
-      'DAI': 'dai',
-      'USDT': 'tether',
-      'WBTC': 'wrapped-bitcoin',
-      'IDRX': 'idrx',
-      'DEGEN': 'degen',
-      'AERO': 'aerodrome-finance'
+  private parseSymbol(raw: string): {
+    normalizedSymbol: string;
+    chain?: string;
+  } {
+    const [sym, chain] = raw.toUpperCase().split("-");
+    return {
+      normalizedSymbol: this.normalizeSymbol(sym),
+      chain,
+    };
+  }
+
+  private normalizeSymbol(raw: string): string {
+    let s = raw.toUpperCase().trim();
+    s = s.replace(/\.E$/, "");
+    s = s.replace(/^W/, "");
+
+    const alias: Record<string, string> = {
+      STETH: "ETH",
+      WSTETH: "ETH",
+      RETH: "ETH",
+      CBETH: "ETH",
+      WBTC: "BTC",
+      TBTC: "BTC",
     };
 
-    return mapping[tokenSymbol.toUpperCase()] || 'ethereum';
+    return alias[s] ?? s;
   }
 
-  private getFallbackPrice(tokenSymbol: string): number {
-    const cleanSymbol = tokenSymbol
-        .replace(/[^a-zA-Z0-9]/g, '')
-        .toUpperCase();
-    
-    const fallbackPrices: { [key: string]: number } = {
-        'ETH': 3000 * this.USD_TO_IDR,
-        'USDC': 1 * this.USD_TO_IDR,
-        'USDT': 1 * this.USD_TO_IDR,
-        'DAI': 1 * this.USD_TO_IDR,
-        'IDRX': 1 * this.USD_TO_IDR,
-        'COMMON': 1 * this.USD_TO_IDR,
+  private normalizeDate(ts: number): string {
+    return new Date(ts * 1000).toISOString().slice(0, 10);
+  }
+
+  private formatForCoinGecko(date: string): string {
+    const [y, m, d] = date.split("-");
+    return `${d}-${m}-${y}`;
+  }
+
+  private async fetchFromCryptoCompare(
+    symbol: string,
+    ts: number
+  ): Promise<number | null> {
+    try {
+      const res = await fetch(
+        `https://min-api.cryptocompare.com/data/pricehistorical?fsym=${symbol}&tsyms=USD&ts=${ts}`
+      );
+      const data = await res.json();
+      if (typeof data?.[symbol]?.USD === "number") {
+        this.lastSource = "cryptocompare";
+        return data[symbol].USD;
+      }
+    } catch { }
+    return null;
+  }
+
+  private async fetchFromCoinGecko(
+    symbol: string,
+    date: string
+  ): Promise<number | null> {
+    const id = this.mapSymbolToCoinGeckoId(symbol);
+    if (!id) return null;
+
+    try {
+      const res = await fetch(
+        `https://api.coingecko.com/api/v3/coins/${id}/history?date=${this.formatForCoinGecko(
+          date
+        )}`
+      );
+      const data = await res.json();
+      const price = data?.market_data?.current_price?.usd;
+      if (typeof price === "number") {
+        this.lastSource = "coingecko";
+        return price;
+      }
+    } catch { }
+    return null;
+  }
+
+  private getLegacyFallbackUsdPrice(symbol: string): number {
+    const map: Record<string, number> = {
+      ETH: 2000,
+      BTC: 30000,
+      USDC: 1,
+      USDT: 1,
+      DAI: 1,
+      BNB: 300,
+      SOL: 30,
+      MATIC: 1,
+      AVAX: 15,
+      OP: 2,
+      ARB: 1.5,
+      LINK: 7,
     };
-    
-    const price = fallbackPrices[cleanSymbol] || (1 * this.USD_TO_IDR);
-    
-    console.log(`Fallback price for ${tokenSymbol} (${cleanSymbol}): Rp ${price.toLocaleString('id-ID')}`);
-    return price;
+    return map[symbol] ?? 1;
   }
 
-  setExchangeRate(rate: number) {
-    this.USD_TO_IDR = rate;
-    this.cache = {};
+  private async getUsdToIdrRate(date: string): Promise<number> {
+    const cached = this.fxCache.get(date);
+    if (cached && Date.now() - cached.ts < PriceOracle.FX_TTL) {
+      return cached.value;
+    }
+
+    try {
+      const res = await fetch(
+        `https://api.exchangerate.host/${date}?base=USD&symbols=IDR`
+      );
+      const data = await res.json();
+      const rate = data?.rates?.IDR;
+      if (typeof rate === "number") {
+        this.fxCache.set(date, { value: rate, ts: Date.now() });
+        return rate;
+      }
+    } catch { }
+
+    if (cached) return cached.value;
+    return 15000;
+  }
+
+  private mapSymbolToCoinGeckoId(symbol: string): string | null {
+    const map: Record<string, string> = {
+      ETH: "ethereum",
+      BTC: "bitcoin",
+      USDC: "usd-coin",
+      USDT: "tether",
+      DAI: "dai",
+      BNB: "binancecoin",
+      SOL: "solana",
+      MATIC: "matic-network",
+      AVAX: "avalanche-2",
+      OP: "optimism",
+      ARB: "arbitrum",
+      LINK: "chainlink",
+    };
+    return map[symbol] ?? null;
   }
 }
 
