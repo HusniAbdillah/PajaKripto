@@ -19,7 +19,7 @@ import {
 
 // 1. Inisialisasi Alchemy
 const config = {
-  apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || process.env.ALCHEMY_API_KEY,
+  apiKey: process.env.ALCHEMY_API_KEY || process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
   network: Network.BASE_MAINNET,
 };
 const alchemy = new Alchemy(config);
