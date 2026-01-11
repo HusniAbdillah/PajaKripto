@@ -5,8 +5,12 @@
     "type": "RECEIVE",
     "asset": "ETH",
     "amount": 1.5,
-    "price_at_date": 3500,
-    "from": "0xExchange_HotWallet",
+    "price_at_date_usd": 3500,
+    "idr_rate_at_date": 15500,
+    "transaction_value_idr": 81375000,
+    "platform": "CEX_LOCAL",
+    "income_type": "deposit",
+    "tax_object": "NON_FINAL_INCOME",
     "fee_eth": 0.0001
   },
   {
@@ -17,9 +21,13 @@
     "amount_sent": 0.5,
     "asset_received": "USDC",
     "amount_received": 1900,
-    "price_sent_at_date": 3800,
-    "fee_eth": 0.0005,
-    "note": "Profit taking 1"
+    "price_sent_at_date_usd": 3800,
+    "idr_rate_at_date": 15500,
+    "transaction_value_idr": 29450000,
+    "platform": "DEX",
+    "tax_scheme": "PPh22_FINAL",
+    "tax_rate": 0.01,
+    "fee_eth": 0.0005
   },
   {
     "id": "tx_003",
@@ -28,7 +36,11 @@
     "asset": "BasePass NFT",
     "amount": 1,
     "cost_eth": 0.01,
-    "price_eth_at_date": 2500,
+    "price_eth_at_date_usd": 2500,
+    "idr_rate_at_date": 15500,
+    "transaction_value_idr": 387500,
+    "platform": "DEX",
+    "tax_object": "NON_TAXABLE_ACQUISITION",
     "fee_eth": 0.0008
   },
   {
@@ -38,8 +50,12 @@
     "asset_sent": "USDC",
     "amount_sent": 1000,
     "asset_received": "DEGEN",
-    "amount_received": 50000,
-    "price_sent_at_date": 1,
+    "price_sent_at_date_usd": 1,
+    "idr_rate_at_date": 15500,
+    "transaction_value_idr": 15500000,
+    "platform": "DEX",
+    "tax_scheme": "PPh22_FINAL",
+    "tax_rate": 0.01,
     "fee_eth": 0.0002
   },
   {
@@ -48,7 +64,8 @@
     "type": "TRANSFER",
     "asset": "ETH",
     "amount": 0.1,
-    "to": "0xFriend_Wallet",
+    "platform": "ONCHAIN",
+    "tax_object": "NON_TAXABLE_TRANSFER",
     "fee_eth": 0.0001
   },
   {
@@ -58,10 +75,13 @@
     "asset_sent": "ETH",
     "amount_sent": 0.2,
     "asset_received": "USDC",
-    "amount_received": 500,
-    "price_sent_at_date": 2500,
-    "fee_eth": 0.0003,
-    "note": "Re-balancing early 2025"
+    "price_sent_at_date_usd": 2500,
+    "idr_rate_at_date": 15800,
+    "transaction_value_idr": 7900000,
+    "platform": "DEX",
+    "tax_scheme": "PPh22_FINAL",
+    "tax_rate": 0.01,
+    "fee_eth": 0.0003
   },
   {
     "id": "tx_007",
@@ -69,8 +89,12 @@
     "type": "RECEIVE",
     "asset": "AERO",
     "amount": 1000,
-    "price_at_date": 0.8,
-    "from": "0xLiquidity_Pool_Rewards",
+    "price_at_date_usd": 0.8,
+    "idr_rate_at_date": 15800,
+    "transaction_value_idr": 12640000,
+    "platform": "DEX",
+    "income_type": "staking_rewards",
+    "tax_object": "NON_FINAL_INCOME",
     "fee_eth": 0.0
   },
   {
@@ -80,10 +104,13 @@
     "asset_sent": "DEGEN",
     "amount_sent": 20000,
     "asset_received": "ETH",
-    "amount_received": 0.05,
-    "price_sent_at_date": 0.008,
-    "fee_eth": 0.0004,
-    "note": "Stop loss"
+    "price_sent_at_date_usd": 0.008,
+    "idr_rate_at_date": 15800,
+    "transaction_value_idr": 2528000,
+    "platform": "DEX",
+    "tax_scheme": "PPh22_FINAL",
+    "tax_rate": 0.01,
+    "fee_eth": 0.0004
   },
   {
     "id": "tx_009",
@@ -92,7 +119,8 @@
     "asset": "TaxBase Early User NFT",
     "amount": 1,
     "cost_eth": 0.0,
-    "price_eth_at_date": 2800,
+    "platform": "DEX",
+    "tax_object": "NON_TAXABLE_ACQUISITION",
     "fee_eth": 0.0002
   },
   {
@@ -101,7 +129,8 @@
     "type": "TRANSFER",
     "asset": "USDC",
     "amount": 500,
-    "to": "0xMerchant_Payment",
+    "platform": "ONCHAIN_PAYMENT",
+    "tax_object": "NON_TAXABLE_TRANSFER",
     "fee_eth": 0.0001
   },
   {
@@ -111,8 +140,12 @@
     "asset_sent": "AERO",
     "amount_sent": 500,
     "asset_received": "USDC",
-    "amount_received": 450,
-    "price_sent_at_date": 0.9,
+    "price_sent_at_date_usd": 0.9,
+    "idr_rate_at_date": 15800,
+    "transaction_value_idr": 7110000,
+    "platform": "DEX",
+    "tax_scheme": "PPh22_FINAL",
+    "tax_rate": 0.01,
     "fee_eth": 0.0003
   },
   {
@@ -121,8 +154,12 @@
     "type": "RECEIVE",
     "asset": "ETH",
     "amount": 0.5,
-    "price_at_date": 3200,
-    "from": "0xStaking_Rewards",
+    "price_at_date_usd": 3200,
+    "idr_rate_at_date": 15800,
+    "transaction_value_idr": 25280000,
+    "platform": "DEX",
+    "income_type": "staking_rewards",
+    "tax_object": "NON_FINAL_INCOME",
     "fee_eth": 0.0
   },
   {
@@ -132,10 +169,13 @@
     "asset_sent": "ETH",
     "amount_sent": 0.3,
     "asset_received": "IDRX",
-    "amount_received": 15000000,
-    "price_sent_at_date": 3300,
-    "fee_eth": 0.0005,
-    "note": "Cashing out to IDRX"
+    "price_sent_at_date_usd": 3300,
+    "idr_rate_at_date": 15800,
+    "transaction_value_idr": 15642000,
+    "platform": "CEX_LOCAL",
+    "tax_scheme": "PPh22_FINAL",
+    "tax_rate": 0.0021,
+    "fee_eth": 0.0005
   },
   {
     "id": "tx_014",
@@ -143,9 +183,9 @@
     "type": "TRANSFER",
     "asset": "IDRX",
     "amount": 2000000,
-    "to": "0xTax_Safe_Vault",
-    "fee_eth": 0.0002,
-    "note": "Auto-tax allocation"
+    "platform": "CEX_LOCAL",
+    "tax_object": "NON_TAXABLE_INTERNAL",
+    "fee_eth": 0.0002
   },
   {
     "id": "tx_015",
@@ -154,9 +194,12 @@
     "asset_sent": "DEGEN",
     "amount_sent": 30000,
     "asset_received": "USDC",
-    "amount_received": 150,
-    "price_sent_at_date": 0.005,
-    "fee_eth": 0.0004,
-    "note": "Tax loss harvesting potential"
+    "price_sent_at_date_usd": 0.005,
+    "idr_rate_at_date": 15800,
+    "transaction_value_idr": 2370000,
+    "platform": "DEX",
+    "tax_scheme": "PPh22_FINAL",
+    "tax_rate": 0.01,
+    "fee_eth": 0.0004
   }
 ]
