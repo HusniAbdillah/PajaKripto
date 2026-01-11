@@ -1,31 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Search, Filter, ArrowDownLeft, Send, RefreshCw, Plus, Check, ChevronDown, TrendingUp, Download, BanknoteArrowDown, BanknoteArrowUp } from 'lucide-react';
-import Image from 'next/image';
-import { useLanguage } from '@/hooks/useLanguage';
-import { LanguageSwitch } from '@/components/layout/LanguageSwitch';
-import { WalletComponents } from '@/components/wallet/WalletComponents';
-import transactions from '@/data/mock/transactions.json';
+import React, { useState, useEffect } from 'react';
+import { ArrowDownLeft, Send, RefreshCw, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useProtectedRoute } from '@/hooks/useWalletProtection';
+import { useWalletTransactions } from '@/hooks/useWalletTransactions';
+import { Address } from '@/types';
+import { TaxTabContent } from '@/components/dashboard/TaxTabContent';
+import { TransactionsTabContent } from '@/components/dashboard/TransactionsTabContent';
+import { OptimizeTabContent } from '@/components/dashboard/OptimizeTabContent';
+import { BottomNavigation } from '@/components/dashboard/BottomNavigation';
+import { Header } from '@/components/layout/Header';
+import { TestWalletInput } from '@/components/dashboard/TestWalletInput';
 
 type Transaction = {
   id: string;
   timestamp: string;
   type: 'RECEIVE' | 'TRANSFER' | 'SWAP' | 'MINT';
+  // Processed data from useWalletTransactions hook
+  primaryAsset?: string;
+  primaryAmount?: number;
+  secondaryAsset?: string;
+  secondaryAmount?: number;
+  // Legacy fields for fallback
   asset?: string;
   amount?: number;
   price_at_date?: number;
@@ -43,7 +41,18 @@ type Transaction = {
 };
 
 export default function Dashboard() {
+  // All hooks must be called first, before any early returns
+  const { isConnected, isConnecting } = useProtectedRoute();
   const { t, lang, setLang } = useLanguage();
+  
+  // State for address selection
+  const [selectedAddress, setSelectedAddress] = useState<string>('');
+  const [showAddressSelector, setShowAddressSelector] = useState(false);
+  
+  // Search state only
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  
+  // Tab and filter states
   const [activeTab, setActiveTab] = useState<'tax' | 'transactions' | 'optimize'>('tax');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>(['ALL']);
@@ -51,6 +60,76 @@ export default function Dashboard() {
   const [selectedYear, setSelectedYear] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+
+  // Use wallet transactions hook to get real data from backend
+  // For load more, we'll request next batch with offset
+  const { 
+    transactions, 
+    isLoading: isLoadingTransactions, 
+    isError, 
+    error, 
+    refetch, 
+    activeAddress,
+    isTestMode: hookIsTestMode 
+  } = useWalletTransactions({ 
+    testAddress: selectedAddress || undefined 
+  });
+
+  // Simple pagination - just use transactions directly from hook for current page
+  // and manually manage loaded transactions for display
+  const [loadedTransactions, setLoadedTransactions] = useState<Transaction[]>([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // When transactions from hook change, handle them appropriately
+  useEffect(() => {
+    if (transactions) {
+      setLoadedTransactions(transactions);
+    }
+  }, [transactions]);
+
+  // Clear transactions when address changes
+  useEffect(() => {
+    setLoadedTransactions([]);
+  }, [selectedAddress, activeAddress]);
+
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  if (isConnecting || !isConnected) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">
+            {isConnecting ? 'Checking wallet connection...' : 'Redirecting to home...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show transaction loading state
+  const showTransactionLoading = activeTab === 'transactions' && isLoadingTransactions;
+
+  // Handle address submission
+  const handleAddressSubmit = (address: string) => {
+    setSelectedAddress(address);
+    setShowAddressSelector(false);
+    // Reset will be handled by useEffect above
+  };
+
+  // Handle toggling address selector
+  const handleToggleAddressSelector = () => {
+    setShowAddressSelector(!showAddressSelector);
+  };
+
+
 
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -69,10 +148,30 @@ export default function Dashboard() {
     return new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
-  const formatAmount = (amount: number) => {
+  const formatAmount = (amount: number | undefined | null) => {
+    if (amount === null || amount === undefined || isNaN(amount)) {
+      return '0';
+    }
+    
+    // Handle very large numbers
     if (amount >= 1000000) return (amount / 1000000).toFixed(2) + 'M';
     if (amount >= 1000) return (amount / 1000).toFixed(2) + 'K';
-    return amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 4 });
+    
+    // Handle very small numbers - show in scientific notation if < 0.0001
+    if (amount > 0 && amount < 0.0001) {
+      const result = amount.toExponential(2);
+      return result;
+    }
+    
+    // Handle small decimal numbers - show more precision for small amounts
+    if (amount < 1) {
+      const result = amount.toFixed(6).replace(/\.?0+$/, ''); // Remove trailing zeros
+      return result;
+    }
+    
+    // Normal numbers
+    const result = amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 4 });
+    return result;
   };
 
   const getTypeIcon = (type: string) => {
@@ -123,7 +222,7 @@ export default function Dashboard() {
   const years = ['all', '2025', '2024', '2023'];
   const months = ['all', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 
-  const filteredTransactions = (transactions as Transaction[])
+  const filteredTransactions = (loadedTransactions || [])
     .filter(tx => {
       if (selectedTypes.includes('ALL')) return true;
       return selectedTypes.includes(tx.type);
@@ -138,12 +237,14 @@ export default function Dashboard() {
       return new Date(tx.timestamp).getMonth() === monthIndex - 1;
     })
     .filter(tx => {
-      const query = searchQuery.toLowerCase();
-      return tx.id.toLowerCase().includes(query) ||
-             tx.type.toLowerCase().includes(query) ||
-             (tx.asset && tx.asset.toLowerCase().includes(query)) ||
-             (tx.asset_sent && tx.asset_sent.toLowerCase().includes(query)) ||
-             (tx.asset_received && tx.asset_received.toLowerCase().includes(query)) ||
+      const query = debouncedSearchQuery.toLowerCase();
+      if (!query) return true;
+      return tx.id?.toLowerCase().includes(query) ||
+             tx.type?.toLowerCase().includes(query) ||
+             tx.primaryAsset?.toLowerCase().includes(query) ||
+             tx.asset?.toLowerCase().includes(query) ||
+             tx.asset_sent?.toLowerCase().includes(query) ||
+             tx.asset_received?.toLowerCase().includes(query) ||
              (tx.note && tx.note.toLowerCase().includes(query));
     })
     .sort((a, b) => {
@@ -152,337 +253,95 @@ export default function Dashboard() {
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
 
+  // Show only current page items when not searching
+  const displayedTransactions = debouncedSearchQuery ? 
+    filteredTransactions : 
+    filteredTransactions;
+    
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Header - Sticky */}
-      {/* Navigation Header */}
-      <nav className="border-b border-border sticky top-0 z-50 bg-background/95 backdrop-blur-sm flex-shrink-0">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Image 
-              src="/pajakripto_logo.jpeg" 
-              alt="PajaKripto Logo" 
-              width={40} 
-              height={40}
-              className="rounded-lg"
-            />
-            <span className="text-lg font-semibold text-foreground">
-              {t.app_name}
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <LanguageSwitch />
-            <WalletComponents />
-          </div>
-        </div>
-      </nav>
+      {/* Header Component */}
+      <Header />
 
       {/* Body Content - Scrollable */}
-      <main className="flex-1 overflow-y-auto px-4 py-4 pb-28">
+      <main className="flex-1 overflow-y-auto px-4 py-4 pb-28 max-w-6xl mx-auto w-full">
         {/* Tax Tab Content */}
-        {activeTab === 'tax' && (
-          <div className="space-y-4">
-            <div className="bg-card backdrop-blur-sm border border-border rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-foreground mb-2">{t.navTax}</h2>
-              <p className="text-muted-foreground">Tax calculation and vault management coming soon...</p>
-            </div>
-          </div>
-        )}
+        {activeTab === 'tax' && <TaxTabContent />}
 
         {/* Transactions Tab Content */}
         {activeTab === 'transactions' && (
           <>
-            {/* Search & Filter */}
-            <div className="space-y-3 mb-4">
-              <div className="flex gap-3">
-                {/* Search Bar */}
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    type="text"
-                    placeholder={t.searchPlaceholder}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-11"
-                  />
+            {/* Address Selection Input */}
+            <TestWalletInput
+              onAddressSubmit={handleAddressSubmit}
+              isActive={showAddressSelector}
+              onToggle={handleToggleAddressSelector}
+              currentAddress={selectedAddress}
+            />
+
+            {/* Transaction loading state */}
+            {showTransactionLoading && (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-500">Loading transactions from {activeAddress}...</p>
+                  {hookIsTestMode && <p className="text-xs text-blue-500 mt-1"></p>}
                 </div>
-
-                {/* Filter Dropdown Menu */}
-                <DropdownMenu open={showFilterDropdown} onOpenChange={setShowFilterDropdown}>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="gap-2 whitespace-nowrap h-11">
-                      <Filter className="w-4 h-4" />
-                      <span className="text-sm">{t.filter}</span>
-                      {(selectedTypes.length > 1 || !selectedTypes.includes('ALL') || selectedMonth !== 'all' || selectedYear !== 'all') && (
-                        <span className="px-1.5 py-0.5 bg-primary/20 text-primary text-xs rounded-full font-medium">
-                          {selectedTypes.filter(type => type !== 'ALL').length + (selectedMonth !== 'all' ? 1 : 0) + (selectedYear !== 'all' ? 1 : 0)}
-                        </span>
-                      )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    {/* Type Filters */}
-                    <div className="p-3 border-b">
-                      <h3 className="text-sm font-semibold mb-3">{t.type}</h3>
-                      <div className="space-y-1.5">
-                        {['ALL', 'SWAP', 'RECEIVE', 'TRANSFER', 'MINT'].map((type) => {
-                          const isChecked = (type === 'ALL' && selectedTypes.includes('ALL')) || (type !== 'ALL' && selectedTypes.includes(type));
-                          return (
-                            <div
-                              key={type}
-                              onClick={() => toggleType(type)}
-                              className="flex items-center gap-2.5 cursor-pointer p-1.5 rounded-lg hover:bg-muted transition-colors"
-                            >
-                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                                isChecked
-                                  ? 'bg-black border-black'
-                                  : 'border-input'
-                              }`}>
-                                {isChecked && (
-                                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
-                                )}
-                              </div>
-                              <span className={`text-sm transition-colors ${
-                                isChecked ? 'font-medium' : 'text-muted-foreground'
-                              }`}>
-                                {t[type.toLowerCase() as keyof typeof t] as string}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Period Filters */}
-                    <div className="p-3">
-                      <h3 className="text-sm font-semibold mb-3">{t.period}</h3>
-                      <div className="space-y-2">
-                        {/* Sort Select */}
-                        <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">{lang === 'id' ? 'Urutkan' : 'Sort'}</label>
-                          <Select value={sortOrder} onValueChange={(val) => setSortOrder(val as 'newest' | 'oldest')}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="newest">{lang === 'id' ? 'Terbaru' : 'Newest'}</SelectItem>
-                              <SelectItem value="oldest">{lang === 'id' ? 'Tertua' : 'Oldest'}</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        {/* Year Select */}
-                        <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">{t.year}</label>
-                          <Select value={selectedYear} onValueChange={setSelectedYear}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {years.map(year => (
-                                <SelectItem key={year} value={year}>
-                                  {year === 'all' ? (lang === 'id' ? 'Semua Tahun' : 'All Years') : year}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Month Select */}
-                        <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">{t.month}</label>
-                          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {months.map(month => (
-                                <SelectItem key={month} value={month}>
-                                  {month === 'all' ? t.months.all : t.months[month as keyof typeof t.months]}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="p-3 bg-muted flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={resetFilters}
-                        className="flex-1 h-9"
-                      >
-                        {t.reset}
-                      </Button>
-                      <Button
-                        onClick={applyFilters}
-                        className={`flex-1 h-9 ${
-                          (selectedTypes.length > 1 || !selectedTypes.includes('ALL') || selectedMonth !== 'all' || selectedYear !== 'all')
-                            ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
-                            : ''
-                        }`}
-                        variant={(selectedTypes.length > 1 || !selectedTypes.includes('ALL') || selectedMonth !== 'all' || selectedYear !== 'all') ? 'default' : 'outline'}
-                      >
-                        {t.apply}
-                      </Button>
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* Download PDF Button */}
-                <Button
-                  variant="outline"
-                  className="gap-2 whitespace-nowrap h-11"
-                  title={lang === 'id' ? 'Download Riwayat Transaksi' : 'Download Transaction History'}
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="text-sm hidden sm:inline">PDF</span>
+              </div>
+            )}
+            
+            {/* Transaction error state */}
+            {isError && !isLoadingTransactions && (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="text-red-500 mb-4">
+                  <p className="font-medium">Failed to load transactions</p>
+                  <p className="text-sm text-gray-500 mt-1">{error}</p>
+                </div>
+                <Button onClick={refetch} size="sm" variant="outline">
+                  Try Again
                 </Button>
               </div>
-            </div>
+            )}
 
-            {/* Transaction List */}
-            <div className="space-y-3">
-              {filteredTransactions.map((tx) => (
-                <div
-                  key={tx.id}
-                  className="bg-card backdrop-blur-sm border border-border rounded-2xl p-4 hover:bg-muted/50 transition-all cursor-pointer"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`p-3 rounded-xl ${getTypeColor(tx.type)} flex-shrink-0`}>
-                      {getTypeIcon(tx.type)}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-1">
-                        <div>
-                          <h3 className="text-foreground font-semibold">{t[tx.type.toLowerCase() as keyof typeof t] as string}</h3>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {formatDate(tx.timestamp)} • {formatTime(tx.timestamp)}
-                          </p>
-                        </div>
-                        
-                        <div className="text-right">
-                          {tx.type === 'SWAP' ? (
-                            <div>
-                              <p className="text-sm text-destructive">-{formatAmount(tx.amount_sent!)} {tx.asset_sent}</p>
-                              <p className="text-sm text-success">+{formatAmount(tx.amount_received!)} {tx.asset_received}</p>
-                            </div>
-                          ) : tx.type === 'RECEIVE' ? (
-                            <p className="text-success font-semibold">+{formatAmount(tx.amount!)} {tx.asset}</p>
-                          ) : tx.type === 'TRANSFER' ? (
-                            <p className="text-destructive font-semibold">-{formatAmount(tx.amount!)} {tx.asset}</p>
-                          ) : (
-                            <p className="text-warning font-semibold">{tx.asset}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-2 space-y-1">
-                        {tx.from && (
-                          <p className="text-xs text-muted-foreground">
-                            {t.from}: {tx.from.length > 20 ? tx.from.substring(0, 18) + '...' : tx.from}
-                          </p>
-                        )}
-                        {tx.to && (
-                          <p className="text-xs text-muted-foreground">
-                            {t.to}: {tx.to.length > 20 ? tx.to.substring(0, 18) + '...' : tx.to}
-                          </p>
-                        )}
-                        {tx.note && (
-                          <p className="text-xs text-success italic">{tx.note}</p>
-                        )}
-                        {tx.fee_eth && tx.fee_eth > 0 && (
-                          <p className="text-xs text-muted-foreground/70">{t.fee}: {tx.fee_eth} ETH</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {filteredTransactions.length === 0 && (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <p className="text-muted-foreground">{t.noTransactions}</p>
-                </div>
-              )}
-            </div>
+            {/* Transaction content */}
+            {!showTransactionLoading && (
+              <TransactionsTabContent
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                showFilterDropdown={showFilterDropdown}
+                setShowFilterDropdown={setShowFilterDropdown}
+                selectedTypes={selectedTypes}
+                selectedMonth={selectedMonth}
+                selectedYear={selectedYear}
+                sortOrder={sortOrder}
+                setSortOrder={setSortOrder}
+                filteredTransactions={displayedTransactions}
+                formatDate={formatDate}
+                formatTime={formatTime}
+                formatAmount={formatAmount}
+                getTypeIcon={getTypeIcon}
+                getTypeColor={getTypeColor}
+                toggleType={toggleType}
+                setSelectedMonth={setSelectedMonth}
+                setSelectedYear={setSelectedYear}
+                applyFilters={applyFilters}
+                resetFilters={resetFilters}
+                years={years}
+                months={months}
+                activeAddress={activeAddress}
+                isTestMode={hookIsTestMode}
+                onRefresh={refetch}
+              />
+            )}
           </>
         )}
 
         {/* Optimize Tab Content */}
-        {activeTab === 'optimize' && (
-          <div className="space-y-4">
-            <div className="bg-card backdrop-blur-sm border border-border rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-foreground mb-2">{t.navOptimize}</h2>
-              <p className="text-muted-foreground">Tax optimization strategies coming soon...</p>
-            </div>
-          </div>
-        )}
+        {activeTab === 'optimize' && <OptimizeTabContent />}
       </main>
 
-        {/* Bottom Navigation Bar */}
-      {/* Footer Navigation - Sticky */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border z-50 flex-shrink-0">
-        <div className="flex items-center justify-around px-4 py-3">
-          <button 
-            onClick={() => setActiveTab('tax')}
-            className={`flex flex-col items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 relative ${
-              activeTab === 'tax' 
-                ? 'text-success' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {activeTab === 'tax' && (
-              <div className="absolute inset-0 bg-success/15 rounded-full z-0"></div>
-            )}
-            <div className="relative z-10">
-              <BanknoteArrowDown className="w-6 h-6" />
-            </div>
-            <span className="text-xs font-medium relative z-10">{t.navTax}</span>
-          </button>
-
-          {/* Transactions Button */}
-          <button 
-            onClick={() => setActiveTab('transactions')}
-            className={`flex flex-col items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 relative ${
-              activeTab === 'transactions' 
-                ? 'text-success' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {activeTab === 'transactions' && (
-              <div className="absolute inset-0 bg-success/15 rounded-full z-0"></div>
-            )}
-            <div className="relative z-10">
-              <RefreshCw className="w-6 h-6" />
-            </div>
-            <span className="text-xs font-medium relative z-10">{t.navTransactions}</span>
-          </button>
-
-          {/* Optimize Button */}
-          <button 
-            onClick={() => setActiveTab('optimize')}
-            className={`flex flex-col items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 relative ${
-              activeTab === 'optimize' 
-                ? 'text-success' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {activeTab === 'optimize' && (
-              <div className="absolute inset-0 bg-success/15 rounded-full z-0"></div>
-            )}
-            <div className="relative z-10">
-              <BanknoteArrowUp className="w-6 h-6" />
-            </div>
-            <span className="text-xs font-medium relative z-10">{t.navOptimize}</span>
-          </button>
-        </div>
-      </footer>
+      {/* Bottom Navigation Component */}
+      <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} t={t} />
     </div>
   );
 }

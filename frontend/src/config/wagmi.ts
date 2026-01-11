@@ -7,7 +7,7 @@ export const wagmiConfig = createConfig({
   connectors: [
     coinbaseWallet({
       appName: 'PajaKripto',
-      preference: 'smartWalletOnly',
+      preference: 'all',
     }),
   ],
   ssr: true,
