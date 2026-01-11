@@ -73,9 +73,9 @@ export function TransactionCard({ transaction: tx, formatDate, formatTime, forma
               <p className="text-sm text-success">+{formatAmount(tx.amount_received!)} {tx.asset_received}</p>
             </div>
           ) : tx.type === 'RECEIVE' ? (
-            <p className="text-success font-semibold">+{formatAmount(tx.amount!)} {tx.asset}</p>
+            <p className="text-success font-semibold">+{formatAmount(tx.amount ?? 0)} {tx.asset}</p>
           ) : tx.type === 'TRANSFER' ? (
-            <p className="text-destructive font-semibold">-{formatAmount(tx.amount!)} {tx.asset}</p>
+            <p className="text-destructive font-semibold">-{formatAmount(tx.amount ?? 0)} {tx.asset}</p>
           ) : (
             <p className="text-warning font-semibold">{tx.asset}</p>
           )}
