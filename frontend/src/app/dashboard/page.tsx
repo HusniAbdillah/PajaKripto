@@ -254,9 +254,7 @@ export default function Dashboard() {
     });
 
   // Show only current page items when not searching
-  const displayedTransactions = debouncedSearchQuery ? 
-    filteredTransactions : 
-    filteredTransactions;
+  const displayedTransactions = filteredTransactions;
     
   return (
     <div className="min-h-screen flex flex-col bg-background">
