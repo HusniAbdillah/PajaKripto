@@ -31,7 +31,6 @@ export function WalletComponents() {
             color: white !important;
             fill: white !important;
             stroke: white !important;
-            
           }
           
           .wallet-wrapper button svg,
