@@ -28,6 +28,48 @@ export const dictionary = {
     // Footer
     built_with: "Dibangun dengan",
     and: "dan",
+    
+    // Transaction Page
+    transactions: 'Transaksi',
+    searchPlaceholder: 'Cari transaksi...',
+    filter: 'Filter',
+    all: 'Semua',
+    swap: 'Swap',
+    receive: 'Terima',
+    transfer: 'Kirim',
+    mint: 'Mint',
+    type: 'Tipe',
+    period: 'Periode',
+    month: 'Bulan',
+    year: 'Tahun',
+    apply: 'Terapkan',
+    reset: 'Reset',
+    from: 'Dari',
+    to: 'Ke',
+    fee: 'Biaya',
+    today: 'Hari ini',
+    yesterday: 'Kemarin',
+    daysAgo: 'hari lalu',
+    noTransactions: 'Tidak ada transaksi',
+    navTax: 'Pajak',
+    navTransactions: 'Transaksi',
+    navOptimize: 'Optimasi',
+    trackActivity: 'Lacak aktivitas kripto Anda',
+    months: {
+      all: 'Semua Bulan',
+      jan: 'Januari', 
+      feb: 'Februari', 
+      mar: 'Maret', 
+      apr: 'April',
+      may: 'Mei', 
+      jun: 'Juni', 
+      jul: 'Juli', 
+      aug: 'Agustus',
+      sep: 'September', 
+      oct: 'Oktober', 
+      nov: 'November', 
+      dec: 'Desember'
+    }
   },
   
   en: {
@@ -59,6 +101,48 @@ export const dictionary = {
     // Footer
     built_with: "Built with",
     and: "and",
+    
+    // Transaction Page
+    transactions: 'Transactions',
+    searchPlaceholder: 'Search transactions...',
+    filter: 'Filter',
+    all: 'All',
+    swap: 'Swap',
+    receive: 'Receive',
+    transfer: 'Transfer',
+    mint: 'Mint',
+    type: 'Type',
+    period: 'Period',
+    month: 'Month',
+    year: 'Year',
+    apply: 'Apply',
+    reset: 'Reset',
+    from: 'From',
+    to: 'To',
+    fee: 'Fee',
+    today: 'Today',
+    yesterday: 'Yesterday',
+    daysAgo: 'days ago',
+    noTransactions: 'No transactions found',
+    navTax: 'Tax',
+    navTransactions: 'Transactions',
+    navOptimize: 'Optimize',
+    trackActivity: 'Track your crypto activity',
+    months: {
+      all: 'All Months',
+      jan: 'January', 
+      feb: 'February', 
+      mar: 'March', 
+      apr: 'April',
+      may: 'May', 
+      jun: 'June', 
+      jul: 'July', 
+      aug: 'August',
+      sep: 'September', 
+      oct: 'October', 
+      nov: 'November', 
+      dec: 'December'
+    }
   }
 };
 

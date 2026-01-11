@@ -6,7 +6,6 @@ import {
   SortingOrder,
 } from "alchemy-sdk";
 import { v4 as uuidv4 } from "uuid";
-import dotenv from "dotenv";
 import {
   Address,
   RawTransaction,
@@ -18,11 +17,9 @@ import {
   UnixTimestamp,
 } from "../types";
 
-dotenv.config({ path: ".env.local" });
-
 // 1. Inisialisasi Alchemy
 const config = {
-  apiKey: process.env.ALCHEMY_API_KEY,
+  apiKey: process.env.ALCHEMY_API_KEY || process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
   network: Network.BASE_MAINNET,
 };
 const alchemy = new Alchemy(config);

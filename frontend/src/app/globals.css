@@ -286,3 +286,85 @@
     text-transform: uppercase;
   }
 }
+
+/* OnChainKit Wallet Modal Z-Index Override - Fix modal being covered by footer */
+/* Define CSS custom properties for z-index layers */
+:root {
+  --z-footer: 30;
+  --z-header: 50;
+  --z-modal-backdrop: 9998;
+  --z-modal-content: 9999;
+  --z-modal-wallet: 10000;
+}
+
+/* Target all possible OnChainKit modal/dropdown elements */
+[data-testid="ockWalletModal"],
+[data-testid="ockWalletDropdown"], 
+[data-testid="ockConnectButton"],
+[data-testid="ockAccountModal"],
+[data-testid="ockWalletModalContent"],
+.ock-wallet-modal,
+.ock-wallet-dropdown,
+.ock-modal-backdrop,
+.ock-modal-container,
+.ock-account-modal {
+  z-index: var(--z-modal-wallet) !important;
+}
+
+/* Target Radix UI portals and overlays used by OnChainKit */
+[data-radix-portal],
+[data-radix-popper-content-wrapper],
+[data-radix-dialog-portal],
+[data-radix-dropdown-menu-portal],
+[data-radix-dialog-content],
+[data-radix-dropdown-menu-content] {
+  z-index: var(--z-modal-wallet) !important;
+}
+
+/* Generic modal and dialog selectors */
+div[role="dialog"],
+div[role="menu"],
+div[role="listbox"],
+div[aria-modal="true"] {
+  z-index: var(--z-modal-wallet) !important;
+}
+
+/* Fixed positioned elements that could be modals */
+div[style*="position: fixed"],
+div[style*="position:fixed"] {
+  z-index: var(--z-modal-wallet) !important;
+}
+
+/* Specifically target bottom sheets and mobile modals */
+div[style*="bottom: 0"][style*="position: fixed"],
+div[style*="bottom:0"][style*="position:fixed"],
+div[style*="inset: 0"][style*="position: fixed"],
+div[style*="inset:0"][style*="position:fixed"] {
+  z-index: var(--z-modal-wallet) !important;
+}
+
+/* Ensure backdrop/overlay elements are also properly stacked */
+div[data-state="open"],
+div[data-side],
+.ock-backdrop,
+.ock-overlay {
+  z-index: var(--z-modal-backdrop) !important;
+}
+
+/* Additional OnChainKit component targeting */
+.coinbase-wallet-modal,
+.coinbase-wallet-dropdown,
+.onchainkit-modal,
+.onchainkit-dropdown {
+  z-index: var(--z-modal-wallet) !important;
+}
+
+/* Force all body-level portals to top */
+body > div[data-radix-portal] {
+  z-index: var(--z-modal-wallet) !important;
+}
+
+/* Target React portals at body level */
+body > div:not([id]):not([class]) {
+  z-index: var(--z-modal-wallet) !important;
+}
