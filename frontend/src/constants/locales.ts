@@ -69,6 +69,26 @@ export const dictionary = {
       oct: 'Oktober', 
       nov: 'November', 
       dec: 'Desember'
+    },
+    
+    // Tax Page
+    tax: {
+      totalTax: 'Total Pajak',
+      totalTransactions: 'Total Transaksi', 
+      taxableTransactions: 'Transaksi Kena Pajak',
+      period: 'Periode',
+      transactionHistory: 'Riwayat Transaksi',
+      noTransactionsInPeriod: 'Tidak ada transaksi pada periode ini',
+      totalTaxLabel: 'Total Pajak',
+      value: 'Nilai',
+      nonTaxable: 'Tidak kena pajak',
+      nonFinalIncome: 'Penghasilan non-final',
+      pph22Final: 'PPh 22 Final',
+      downloadReport: 'Laporan Pajak',
+      monthNames: [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ]
     }
   },
   
@@ -142,6 +162,26 @@ export const dictionary = {
       oct: 'October', 
       nov: 'November', 
       dec: 'December'
+    },
+    
+    // Tax Page
+    tax: {
+      totalTax: 'Total Tax',
+      totalTransactions: 'Total Transactions',
+      taxableTransactions: 'Taxable Transactions', 
+      period: 'Period',
+      transactionHistory: 'Transaction History',
+      noTransactionsInPeriod: 'No transactions in this period',
+      totalTaxLabel: 'Total Tax',
+      value: 'Value',
+      nonTaxable: 'Non-taxable',
+      nonFinalIncome: 'Non-final income',
+      pph22Final: 'PPh 22 Final',
+      downloadReport: 'Tax Report',
+      monthNames: [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ]
     }
   }
 };

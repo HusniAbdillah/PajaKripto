@@ -134,12 +134,17 @@ export default function Dashboard() {
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
+    
+    // Set both times to start of day for accurate day calculation
+    const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const diff = nowStart.getTime() - dateStart.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
     if (days === 0) return t.today;
     if (days === 1) return t.yesterday;
-    if (days < 7) return `${days} ${t.daysAgo}`;
+    if (days > 1 && days < 7) return `${days} ${t.daysAgo}`;
     
     return date.toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };

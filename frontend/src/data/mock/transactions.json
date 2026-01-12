@@ -201,5 +201,35 @@
     "tax_scheme": "PPh22_FINAL",
     "tax_rate": 0.01,
     "fee_eth": 0.0004
+  },
+  {
+    "id": "tx_017",
+    "timestamp": "2026-01-05T14:15:00Z",
+    "type": "SWAP",
+    "asset_sent": "ETH",
+    "amount_sent": 0.3,
+    "asset_received": "USDC",
+    "amount_received": 1140,
+    "price_sent_at_date_usd": 3800,
+    "idr_rate_at_date": 16000,
+    "transaction_value_idr": 18240000,
+    "platform": "DEX",
+    "tax_scheme": "PPh22_FINAL",
+    "tax_rate": 0.01,
+    "fee_eth": 0.0004
+  },
+  {
+    "id": "tx_018",
+    "timestamp": "2026-01-08T10:00:00Z",
+    "type": "MINT",
+    "asset": "Base Chain Genesis NFT",
+    "amount": 1,
+    "cost_eth": 0.02,
+    "price_eth_at_date_usd": 3800,
+    "idr_rate_at_date": 16000,
+    "transaction_value_idr": 1216000,
+    "platform": "DEX",
+    "tax_object": "NON_TAXABLE_ACQUISITION",
+    "fee_eth": 0.001
   }
 ]
